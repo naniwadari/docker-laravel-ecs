@@ -1,17 +1,42 @@
-FROM php:7.4-fpm-buster
-SHELL ["/bin/bash", "-oeux", "pipefail", "-c"]
+FROM php:7.4-fpm-alpine
+COPY ./src /work
+COPY ./docker/php/php.ini /usr/local/etc/php/php.ini
+LABEL maintainer="ucan-lab <info@u-can.tech>"
 
-ENV COMPOSER_ALLOW_SUOERUSER=1 \
-  COMPOSER_HOME=/composer
+SHELL ["/bin/ash", "-oeux", "pipefail", "-c"]
 
-COPY --from=composer:1.10 /usr/bin/composer /usr/bin/composer
+# tinker(psysh)
+ARG PSYSH_DIR=/usr/local/share/psysh
+ARG PSYSH_PHP_MANUAL=$PSYSH_DIR/php_manual.sqlite
+ARG PHP_MANUAL_URL=http://psysh.org/manual/ja/php_manual.sqlite
 
-RUN apt-get update && \
-  apt-get -y install git unzip libzip-dev libicu-dev libonig-dev && \
-  apt-get clean && \
-  rm -rf /var/lib/apt/lists/* && \
-  docker-php-ext-install intl pdo_mysql zip bcmath
+# timezone
+ARG TZ=Asia/Tokyo
 
-COPY ./php.ini /usr/local/etc/php/php.ini
+# composer
+ENV COMPOSER_ALLOW_SUPERUSER 1
+ENV COMPOSER_HOME /composer
 
-WORKDIR /work
+RUN apk update && \
+  apk add --update --no-cache --virtual=.build-dependencies \
+  autoconf=~2.69 \
+  g++ \
+  gcc \
+  make \
+  tzdata \
+  git && \
+  apk add --update --no-cache \
+  icu-dev \
+  libzip-dev \
+  oniguruma-dev && \
+  cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && \
+  echo ${TZ} > /etc/timezone && \
+  pecl install xdebug && \
+  git clone https://github.com/phpredis/phpredis.git /usr/src/php/ext/redis && \
+  apk del .build-dependencies && \
+  docker-php-ext-install intl pdo_mysql mbstring zip bcmath redis && \
+  docker-php-ext-enable xdebug && \
+  mkdir $PSYSH_DIR && curl $PHP_MANUAL_URL -o $PSYSH_PHP_MANUAL && \
+  curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer && \
+  composer config -g process-timeout 3600 && \
+  composer config -g repos.packagist composer https://packagist.jp
