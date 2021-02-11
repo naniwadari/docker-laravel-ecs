@@ -1,2 +1,0 @@
-192.168.144.1 - - [08/Feb/2021:23:59:23 +0900] "GET / HTTP/1.1" 200 17502 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.146 Safari/537.36" "-"
-192.168.144.1 - - [08/Feb/2021:23:59:23 +0900] "GET /favicon.ico HTTP/1.1" 200 0 "http://localhost/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.146 Safari/537.36" "-"
