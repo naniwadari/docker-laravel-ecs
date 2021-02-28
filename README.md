@@ -11,9 +11,15 @@ laravel を ecs で運用するテスト
 
 ### ./docker/php/Dockerfile
 
+a
+
 - apk でバージョン指定していた場合エラーが出たためバージョン指定を解除
 - `composer global require hirak/prestissimo` 左記パッケージは composer2.0 からは動作しないためエラーになるので削除。
 
 ### ./docker-compose
 
 - `${APP_PORT}`にデフォルト値を追加
+
+### docker のビルド
+
+- docker build -t "ファイル名":"タグ" -f "dockerfile のパス" "context のパス"
